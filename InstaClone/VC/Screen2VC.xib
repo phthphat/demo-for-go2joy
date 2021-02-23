@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="Screen2VC" customModule="InstaClone" customModuleProvider="target">
+            <connections>
+                <outlet property="scrV" destination="mAn-pf-7XE" id="LQO-XR-3d2"/>
+                <outlet property="stV" destination="n1C-st-Yvj" id="kkV-4F-leA"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mAn-pf-7XE">
+                    <rect key="frame" x="0.0" y="44" width="414" height="818"/>
+                    <subviews>
+                        <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" axis="vertical" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="n1C-st-Yvj">
+                            <rect key="frame" x="0.0" y="0.0" width="414" height="128"/>
+                            <directionalEdgeInsets key="directionalLayoutMargins" top="10" leading="10" bottom="10" trailing="10"/>
+                        </stackView>
+                    </subviews>
+                    <constraints>
+                        <constraint firstItem="n1C-st-Yvj" firstAttribute="top" secondItem="mAn-pf-7XE" secondAttribute="top" id="Rmk-pu-x5C"/>
+                        <constraint firstItem="n1C-st-Yvj" firstAttribute="width" secondItem="mAn-pf-7XE" secondAttribute="width" id="SJ6-tS-zwe"/>
+                        <constraint firstItem="n1C-st-Yvj" firstAttribute="leading" secondItem="mAn-pf-7XE" secondAttribute="leading" id="XeH-Tc-Ry8"/>
+                        <constraint firstAttribute="bottom" secondItem="n1C-st-Yvj" secondAttribute="bottom" id="fhD-1r-wvY"/>
+                        <constraint firstAttribute="trailing" secondItem="n1C-st-Yvj" secondAttribute="trailing" id="xK5-s4-nk4"/>
+                    </constraints>
+                </scrollView>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="fnl-2z-Ty3"/>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstItem="mAn-pf-7XE" firstAttribute="top" secondItem="fnl-2z-Ty3" secondAttribute="top" id="GXp-bF-x0E"/>
+                <constraint firstItem="mAn-pf-7XE" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" id="ini-L9-aTS"/>
+                <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="mAn-pf-7XE" secondAttribute="trailing" id="rNO-pF-hd6"/>
+                <constraint firstItem="fnl-2z-Ty3" firstAttribute="bottom" secondItem="mAn-pf-7XE" secondAttribute="bottom" id="yLs-zF-GAK"/>
+            </constraints>
+            <point key="canvasLocation" x="-145" y="102"/>
+        </view>
+    </objects>
+</document>

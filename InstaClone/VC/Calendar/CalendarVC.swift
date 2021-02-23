@@ -18,7 +18,7 @@ class CalendarVC: UIViewController {
     @IBOutlet weak var fromTimeTbV: UITableView!
     @IBOutlet weak var toTimeTbV: UITableView!
     
-    var subscription: Any?
+    var notiSubscription: Any?
     //MARK: State
     var isShowingCalendar: Bool = false {
         didSet {
@@ -53,25 +53,35 @@ class CalendarVC: UIViewController {
     }
     lazy var selectedFromTimeInterval: Int = fromTimes.first!
     lazy var selectedToTimeInterval: Int = toTimes.first!
+    
     //MARK: Other Properties
     private var calendar = Calendar(identifier: .gregorian)
-    
     /**
      `unitTiming` is equivalent 30 minutes
      */
     private var unitTiming = 1
     lazy var fromTimes: [Int] = (0...24 * 2 - 1).map { $0 * unitTiming }
     lazy var toTimes = fromTimes
+    //MARK: Config variable
+    var fromHourAllowStart: Int = 0
+    var fromHourAllowEnd: Int = 20
+    
+    var toHourAllowStart: Int = 5
+    var toHourAllowEnd: Int = 13
+    
+    var minimunHourAllow = 2
+    
 
     deinit {
-        NotificationCenter.default.removeObserver(subscription as Any)
+        NotificationCenter.default.removeObserver(notiSubscription as Any)
     }
-    //MARK: ViewDidLoad
+    //MARK: View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpUI()
         initState()
         setUpNotification()
+        additionSetup()
     }
     
     private func initState() {
@@ -80,7 +90,6 @@ class CalendarVC: UIViewController {
         //date
         let dateComp = calendar.dateComponents([.day, .month, .year], from: Date())
         curDateChoosen = (dateComp.day!, dateComp.month!, dateComp.year!)
-//        dateChoosenLb.text = "\(dateComp.day!)/\(dateComp.month!)"
     }
     private func setUpUI() {
         //dateView
@@ -93,21 +102,35 @@ class CalendarVC: UIViewController {
         //tableView
         fromTimeTbV.registerXibCell(HourMinuteCell.self)
         toTimeTbV.registerXibCell(HourMinuteCell.self)
-//        fromTimeTbV.isPagingEnabled = true
-//        toTimeTbV.isPagingEnabled = true
     }
     private func setUpNotification() {
-        subscription = NotificationCenter.default.addObserver(forName: .dateChoice, object: nil, queue: .main, using: { [unowned self] noti in
+        notiSubscription = NotificationCenter.default.addObserver(forName: .dateChoice, object: nil, queue: .main, using: { [unowned self] noti in
             if let userInfo = noti.userInfo, let data = userInfo["data"] as? (day: Int, month: Int, year: Int) {
                 dateChoosenLb.text = "\(data.day)/\(data.month)"
             }
         })
     }
+    
+    func additionSetup() {
+        fromHourAllowStart = max(fromHourAllowStart, hourToInterval(hour: toHourAllowStart - minimunHourAllow))
+        toHourAllowEnd = min(toHourAllowEnd, hourToInterval(hour: fromHourAllowStart + minimunHourAllow))
+        [self.fromTimeTbV, self.toTimeTbV].forEach { $0?.reloadData() }
+    }
+    
     //MARK: Logic
     private func timeIntervalToHourMin(_ interval: Int) -> (hour: Int, min: Int) {
-        let hour = interval / 2
-        let min = interval % 2 * 30
+        let hour = interval / (2 * unitTiming)
+        let min = interval % (2 * unitTiming) * 30
         return (hour, min)
+    }
+    
+    private func timeInterval(_ timeInterval: Int, withAddingValue value: Int) -> Int {
+        let maxIntervalIn1Day = ((24 * 2)) * unitTiming
+        var addedVal = timeInterval + value
+        while addedVal < 0 {
+            addedVal += maxIntervalIn1Day
+        }
+        return addedVal % maxIntervalIn1Day
     }
     
     private func timeIntervalToLabel(_ interval: Int) -> String {
@@ -116,6 +139,7 @@ class CalendarVC: UIViewController {
         let minStr = time.min == 30 ? "\(time.min)" : "00"
         return "\(hourStr):\(minStr)"
     }
+    private func hourToInterval(hour: Int) -> Int { return hour * 2 * unitTiming }
     
     //MARK: Event function
     @objc func onTapDateV(_ ges: UITapGestureRecognizer) {
@@ -127,7 +151,7 @@ class CalendarVC: UIViewController {
         isShowingFromToTime.toggle()
     }
 }
-
+//MARK: TableviewDatasource
 extension CalendarVC: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView == self.fromTimeTbV {
@@ -144,7 +168,13 @@ extension CalendarVC: UITableViewDataSource {
             let cell = tableView.dequeueCell(HourMinuteCell.self, indexPath: indexPath)
             let data = fromTimes[indexPath.row]
             cell.setTitle(timeIntervalToLabel(data))
-            cell.setState(data == selectedFromTimeInterval ? .selected : .normal)
+            let isDisable = data < hourToInterval(hour: fromHourAllowStart)
+                || data > hourToInterval(hour: fromHourAllowEnd)
+            if isDisable {
+                cell.setState(.disable)
+            } else {
+                cell.setState(data == selectedFromTimeInterval ? .selected : .normal)
+            }
             return cell
         }
         if tableView == self.toTimeTbV {
@@ -152,6 +182,9 @@ extension CalendarVC: UITableViewDataSource {
             let data = fromTimes[indexPath.row]
             cell.setTitle(timeIntervalToLabel(data))
             let isDisable = selectedFromTimeInterval % 2 != data % 2
+                || data < hourToInterval(hour: toHourAllowStart)
+                || data > hourToInterval(hour: toHourAllowEnd)
+            
             if isDisable {
                 cell.setState(.disable)
             } else {
@@ -162,9 +195,18 @@ extension CalendarVC: UITableViewDataSource {
         return .init()
     }
     func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
+        if tableView == self.fromTimeTbV {
+            let data = fromTimes[indexPath.row]
+            let isDisable = data < hourToInterval(hour: fromHourAllowStart)
+                || data > hourToInterval(hour: fromHourAllowEnd)
+            return isDisable ? nil : indexPath
+            
+        }
         if tableView == self.toTimeTbV {
             let data = fromTimes[indexPath.row]
             let isDisable = selectedFromTimeInterval % 2 != data % 2
+                || data < hourToInterval(hour: toHourAllowStart)
+                || data > hourToInterval(hour: toHourAllowEnd)
             return isDisable ? nil : indexPath
         }
         return indexPath
@@ -174,27 +216,41 @@ extension CalendarVC: UITableViewDataSource {
 extension CalendarVC: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if tableView == self.fromTimeTbV {
-            guard let cell = tableView.cellForRow(at: indexPath) as? HourMinuteCell else { return }
+            
             selectedFromTimeInterval = fromTimes[indexPath.row]
+            guard selectedFromTimeInterval + 2 * unitTiming <= hourToInterval(hour: toHourAllowEnd)
+            else { return }
+            
+            guard let cell = tableView.cellForRow(at: indexPath) as? HourMinuteCell else { return }
             cell.setState(.selected)
             tableView.scrollToRow(at: indexPath, at: .top, animated: true)
             //For toTbV
-            let needSelectedIndexPath = IndexPath(row: indexPath.row + 2, section: indexPath.section)
+            let needSelectedIndexPath = IndexPath(row: timeInterval(selectedFromTimeInterval, withAddingValue: 2), section: indexPath.section)
             //setselect
-            selectedToTimeInterval = selectedFromTimeInterval + 2
+            selectedToTimeInterval = timeInterval(selectedFromTimeInterval, withAddingValue: 2) //selectedFromTimeInterval + 2
             self.toTimeTbV.reloadData()
             if let cell = self.toTimeTbV.cellForRow(at: needSelectedIndexPath) as? HourMinuteCell {
                 cell.setState(.selected)
                 cell.setSelected(true, animated: true)
-                self.toTimeTbV.selectRow(at: needSelectedIndexPath, animated: true, scrollPosition: .none)
             }
-            self.toTimeTbV.scrollToRow(at: needSelectedIndexPath, at: .top, animated: true)
+            self.toTimeTbV.selectRow(at: needSelectedIndexPath, animated: true, scrollPosition: .top)
+//            self.toTimeTbV.scrollToRow(at: needSelectedIndexPath, at: .top, animated: true)
         }
         if tableView == self.toTimeTbV {
-            guard let cell = tableView.cellForRow(at: indexPath) as? HourMinuteCell else { return }
-            selectedToTimeInterval = fromTimes[indexPath.row]
-            cell.setState(.selected)
+            selectedToTimeInterval = toTimes[indexPath.row]
+            guard selectedToTimeInterval - 2 * unitTiming <= hourToInterval(hour: fromHourAllowEnd)
+            else { return }
             
+            guard let cell = tableView.cellForRow(at: indexPath) as? HourMinuteCell else { return }
+            cell.setState(.selected)
+            self.toTimeTbV.scrollToRow(at: indexPath, at: .top, animated: true)
+            if selectedFromTimeInterval >= selectedToTimeInterval {
+                selectedFromTimeInterval = timeInterval(selectedToTimeInterval, withAddingValue: -2)
+            }
+            self.fromTimeTbV.reloadData()
+            let needSelectedIndexPath = IndexPath(row: selectedFromTimeInterval, section: 0)
+            self.fromTimeTbV.selectRow(at: needSelectedIndexPath, animated: true, scrollPosition: .top)
+//            self.fromTimeTbV.scrollToRow(at: needSelectedIndexPath, at: .top, animated: true)
         }
     }
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {

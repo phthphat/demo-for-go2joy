@@ -22,7 +22,7 @@ class CalendarVC: UIViewController {
     //MARK: State
     var isShowingCalendar: Bool = false {
         didSet {
-            UIView.animate(withDuration: 0.2) { [unowned self] in
+            UIView.animate(withDuration: 0.3) { [unowned self] in
                 if isShowingCalendar {
                     calendarHeightContraint.constant = 300
                 } else {
@@ -34,13 +34,15 @@ class CalendarVC: UIViewController {
     }
     var isShowingFromToTime: Bool = false {
         didSet {
-            UIView.animate(withDuration: 0.2) { [unowned self] in
+            UIView.animate(withDuration: 0.3) { [unowned self] in
                 if isShowingFromToTime {
                     fromToTimeHeightContraint.constant = 300
                 } else {
                     fromToTimeHeightContraint.constant = 0
                 }
                 self.view.layoutIfNeeded()
+                fromTimeTbV.scrollToRow(at: .init(row: selectedFromTimeInterval, section: 0), at: .top, animated: false)
+                toTimeTbV.scrollToRow(at: .init(row: selectedToTimeInterval, section: 0), at: .top, animated: false)
             }
         }
     }
@@ -49,6 +51,7 @@ class CalendarVC: UIViewController {
             let monthDisplay = Month(rawValue: curDateChoosen.month)
             dateChoosenLb.text = "\(monthDisplay?.display ?? "Undefined") \(curDateChoosen.day)"
             dateChoosenLb.sizeToFit()
+            setUpRangeTime()
         }
     }
     lazy var selectedFromTimeInterval: Int = fromTimes.first!
@@ -63,13 +66,16 @@ class CalendarVC: UIViewController {
     lazy var fromTimes: [Int] = (0...24 * 2 - 1).map { $0 * unitTiming }
     lazy var toTimes = fromTimes
     //MARK: Config variable
-    var fromHourAllowStart: Int = 0
-    var fromHourAllowEnd: Int = 20
+    var hourAllowStart_Config: Float = 8
+    var hourAllowEnd_Config: Float = 21
+    let minimunHourAllow: Int = 2
     
-    var toHourAllowStart: Int = 5
-    var toHourAllowEnd: Int = 13
+    //Don't config on these variables
+    lazy var fromHourAllowStart: Float = hourAllowStart_Config
+    lazy var fromHourAllowEnd: Float = hourAllowEnd_Config - Float(minimunHourAllow)
     
-    var minimunHourAllow = 2
+    lazy var toHourAllowStart: Float = hourAllowStart_Config + Float(minimunHourAllow)
+    lazy var toHourAllowEnd: Float = hourAllowEnd_Config
     
 
     deinit {
@@ -81,7 +87,7 @@ class CalendarVC: UIViewController {
         setUpUI()
         initState()
         setUpNotification()
-        additionSetup()
+//        setUpRangeTime()
     }
     
     private func initState() {
@@ -102,19 +108,44 @@ class CalendarVC: UIViewController {
         //tableView
         fromTimeTbV.registerXibCell(HourMinuteCell.self)
         toTimeTbV.registerXibCell(HourMinuteCell.self)
+        
+        fromTimeTbV.decelerationRate = .fast
+        toTimeTbV.decelerationRate = .fast
     }
     private func setUpNotification() {
         notiSubscription = NotificationCenter.default.addObserver(forName: .dateChoice, object: nil, queue: .main, using: { [unowned self] noti in
             if let userInfo = noti.userInfo, let data = userInfo["data"] as? (day: Int, month: Int, year: Int) {
-                dateChoosenLb.text = "\(data.day)/\(data.month)"
+//                dateChoosenLb.text = "\(data.day)/\(data.month)"
+                curDateChoosen = data
             }
         })
     }
     
-    func additionSetup() {
-        fromHourAllowStart = max(fromHourAllowStart, hourToInterval(hour: toHourAllowStart - minimunHourAllow))
-        toHourAllowEnd = min(toHourAllowEnd, hourToInterval(hour: fromHourAllowStart + minimunHourAllow))
-        [self.fromTimeTbV, self.toTimeTbV].forEach { $0?.reloadData() }
+    private func setUpRangeTime() {
+        let nowComp = calendar.dateComponents([.hour, .minute, .second, .day, .month, .year], from: Date())
+        if curDateChoosen == (nowComp.day!, nowComp.month!, nowComp.year!) {
+            fromHourAllowStart = max(Float(nowComp.hour!) + 0.5, fromHourAllowStart)
+            toHourAllowStart = max(Float(nowComp.hour!) + Float(minimunHourAllow) + 0.5, toHourAllowStart)
+        } else {
+            fromHourAllowStart = hourAllowStart_Config
+            toHourAllowStart = hourAllowStart_Config + Float(minimunHourAllow)
+        }
+
+//        fromHourAllowStart = max(fromHourAllowStart, toHourAllowStart - Float(minimunHourAllow))
+//        fromHourAllowEnd = min(fromHourAllowEnd, toHourAllowEnd - Float(minimunHourAllow))
+        
+        selectedFromTimeInterval = hourToInterval(hour: fromHourAllowStart)
+        selectedToTimeInterval = hourToInterval(hour: toHourAllowStart)
+        
+//        [self.fromTimeTbV, self.toTimeTbV].forEach { $0?.reloadData() }
+        fromTimeTbV.reloadData()
+        fromTimeTbV.layoutIfNeeded()
+        toTimeTbV.reloadData()
+        toTimeTbV.layoutIfNeeded()
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [unowned self] in
+            fromTimeTbV.scrollToRow(at: .init(row: selectedFromTimeInterval, section: 0), at: .top, animated: false)
+            toTimeTbV.scrollToRow(at: .init(row: selectedToTimeInterval, section: 0), at: .top, animated: false)
+//        }
     }
     
     //MARK: Logic
@@ -139,7 +170,7 @@ class CalendarVC: UIViewController {
         let minStr = time.min == 30 ? "\(time.min)" : "00"
         return "\(hourStr):\(minStr)"
     }
-    private func hourToInterval(hour: Int) -> Int { return hour * 2 * unitTiming }
+    private func hourToInterval(hour: Float) -> Int { return Int(hour * 2 * Float(unitTiming)) }
     
     //MARK: Event function
     @objc func onTapDateV(_ ges: UITapGestureRecognizer) {
@@ -162,7 +193,6 @@ extension CalendarVC: UITableViewDataSource {
         }
         return 0
     }
-    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if tableView == self.fromTimeTbV {
             let cell = tableView.dequeueCell(HourMinuteCell.self, indexPath: indexPath)
@@ -218,16 +248,16 @@ extension CalendarVC: UITableViewDelegate {
         if tableView == self.fromTimeTbV {
             
             selectedFromTimeInterval = fromTimes[indexPath.row]
-            guard selectedFromTimeInterval + 2 * unitTiming <= hourToInterval(hour: toHourAllowEnd)
+            guard selectedFromTimeInterval + 2 * minimunHourAllow * unitTiming <= hourToInterval(hour: toHourAllowEnd)
             else { return }
             
             guard let cell = tableView.cellForRow(at: indexPath) as? HourMinuteCell else { return }
             cell.setState(.selected)
             tableView.scrollToRow(at: indexPath, at: .top, animated: true)
             //For toTbV
-            let needSelectedIndexPath = IndexPath(row: timeInterval(selectedFromTimeInterval, withAddingValue: 2), section: indexPath.section)
+            let needSelectedIndexPath = IndexPath(row: timeInterval(selectedFromTimeInterval, withAddingValue: 2 + minimunHourAllow), section: indexPath.section)
             //setselect
-            selectedToTimeInterval = timeInterval(selectedFromTimeInterval, withAddingValue: 2) //selectedFromTimeInterval + 2
+            selectedToTimeInterval = timeInterval(selectedFromTimeInterval, withAddingValue: 2 + minimunHourAllow) //selectedFromTimeInterval + 2
             self.toTimeTbV.reloadData()
             if let cell = self.toTimeTbV.cellForRow(at: needSelectedIndexPath) as? HourMinuteCell {
                 cell.setState(.selected)
@@ -238,14 +268,14 @@ extension CalendarVC: UITableViewDelegate {
         }
         if tableView == self.toTimeTbV {
             selectedToTimeInterval = toTimes[indexPath.row]
-            guard selectedToTimeInterval - 2 * unitTiming <= hourToInterval(hour: fromHourAllowEnd)
+            guard selectedToTimeInterval - 2 * minimunHourAllow * unitTiming <= hourToInterval(hour: fromHourAllowEnd)
             else { return }
             
             guard let cell = tableView.cellForRow(at: indexPath) as? HourMinuteCell else { return }
             cell.setState(.selected)
             self.toTimeTbV.scrollToRow(at: indexPath, at: .top, animated: true)
-            if selectedFromTimeInterval >= selectedToTimeInterval {
-                selectedFromTimeInterval = timeInterval(selectedToTimeInterval, withAddingValue: -2)
+            if selectedFromTimeInterval + minimunHourAllow >= selectedToTimeInterval {
+                selectedFromTimeInterval = timeInterval(selectedToTimeInterval, withAddingValue: -2 - minimunHourAllow)
             }
             self.fromTimeTbV.reloadData()
             let needSelectedIndexPath = IndexPath(row: selectedFromTimeInterval, section: 0)
@@ -263,7 +293,55 @@ extension CalendarVC: UITableViewDelegate {
             cell.setState(.normal)
         }
     }
+}
+
+extension CalendarVC: UIScrollViewDelegate {
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        guard let tbV = scrollView as? UITableView else { return }
+        if tbV.isDecelerating { return }
+        tbV.delegate?.scrollViewDidEndDecelerating?(tbV)
+    }
+
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        guard let tbV = scrollView as? UITableView else { return }
+        if let needSelectedIndexPath = tbV.indexPathForRow(
+            at: CGPoint(x: tbV.contentOffset.x, y: tbV.contentOffset.y + tbV.rowHeight / 2)
+        ) {
+//            tbV.scrollToRow(at: needSelectedIndexPath, at: .top, animated: true)
+//            needSelectedIndexPath.row += 1
+            if let indexPath = tbV.delegate?.tableView?(tbV, willSelectRowAt: needSelectedIndexPath) {
+                let needDeselect = IndexPath(row:  tbV == fromTimeTbV ? selectedFromTimeInterval : selectedToTimeInterval, section: 0)
+                tbV.delegate?.tableView?(tbV, didDeselectRowAt: needDeselect)
+                tbV.delegate?.tableView?(tbV, didSelectRowAt: indexPath)
+                
+            }
+//            tbV.deselect
+//            tbV.selectRow(at: needSelectedIndexPath, animated: true, scrollPosition: .top)
+        }
+    }
     
+//    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+//        guard let tbV = scrollView as? UITableView else { return }
+//        var offset = targetContentOffset.pointee
+//        let index = offset.x + scrollView.contentInset.left
+//        let roundedIndex = round(index)
+//        offset = CGPoint(x: roundedIndex - scrollView.contentInset.left, y: -scrollView.contentInset.top)
+//        targetContentOffset.pointee = offset
+//
+//    }
+    
+//    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+//        guard let tbV = scrollView as? UITableView else { return }
+////            if scrollView == self.tableView {
+//                let cellHeight: CGFloat = 48.5
+//                var offset = targetContentOffset.pointee
+//                print(offset)
+//                let index = offset.y / cellHeight
+//                let roundedIndex = round(index)
+//                offset.y = roundedIndex * cellHeight
+//                targetContentOffset.pointee = offset
+////            }
+//        }
 }
 
 enum Month: Int {

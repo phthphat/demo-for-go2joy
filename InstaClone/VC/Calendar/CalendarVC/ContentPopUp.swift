@@ -1,15 +1,15 @@
 //
-//  CalendarVC.swift
+//  ContentPopUp.swift
 //  InstaClone
 //
-//  Created by Phat Pham on 19/02/2021.
+//  Created by phat on 24/02/2021.
 //
 
+import Foundation
 import UIKit
 
-class CalendarVC: UIViewController {
-    //MARK: Element
-    @IBOutlet weak var calendarV: OneMonthView!
+class ContentPopUp: BaseXibView {
+    @IBOutlet weak var calendarV: FullCalendarView!
     @IBOutlet weak var dateChoosenLb: UILabel!
     @IBOutlet weak var calendarHeightContraint: NSLayoutConstraint!
     @IBOutlet weak var fromToTimeHeightContraint: NSLayoutConstraint!
@@ -17,9 +17,9 @@ class CalendarVC: UIViewController {
     @IBOutlet weak var timeV: UIView!
     @IBOutlet weak var fromTimeTbV: UITableView!
     @IBOutlet weak var toTimeTbV: UITableView!
-    
+    //
     var notiSubscription: Any?
-    //MARK: State
+    
     var isShowingCalendar: Bool = false {
         didSet {
             UIView.animate(withDuration: 0.3) { [unowned self] in
@@ -28,7 +28,7 @@ class CalendarVC: UIViewController {
                 } else {
                     calendarHeightContraint.constant = 0
                 }
-                self.view.layoutIfNeeded()
+                self.layoutIfNeeded()
             }
         }
     }
@@ -40,7 +40,7 @@ class CalendarVC: UIViewController {
                 } else {
                     fromToTimeHeightContraint.constant = 0
                 }
-                self.view.layoutIfNeeded()
+                self.layoutIfNeeded()
                 fromTimeTbV.scrollToRow(at: .init(row: selectedFromTimeInterval, section: 0), at: .top, animated: false)
                 toTimeTbV.scrollToRow(at: .init(row: selectedToTimeInterval, section: 0), at: .top, animated: false)
             }
@@ -76,27 +76,17 @@ class CalendarVC: UIViewController {
     
     lazy var toHourAllowStart: Float = hourAllowStart_Config + Float(minimunHourAllow)
     lazy var toHourAllowEnd: Float = hourAllowEnd_Config
-    
 
     deinit {
         NotificationCenter.default.removeObserver(notiSubscription as Any)
     }
-    //MARK: View Life cycle
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    override func initView() {
         setUpUI()
-        initState()
         setUpNotification()
-//        setUpRangeTime()
+        setUpRangeTime()
+        postSetUp()
     }
-    
-    private func initState() {
-        isShowingCalendar = false
-        isShowingFromToTime = false
-        //date
-        let dateComp = calendar.dateComponents([.day, .month, .year], from: Date())
-        curDateChoosen = (dateComp.day!, dateComp.month!, dateComp.year!)
-    }
+
     private func setUpUI() {
         //dateView
         dateV.isUserInteractionEnabled = true
@@ -120,7 +110,6 @@ class CalendarVC: UIViewController {
             }
         })
     }
-    
     private func setUpRangeTime() {
         let nowComp = calendar.dateComponents([.hour, .minute, .second, .day, .month, .year], from: Date())
         if curDateChoosen == (nowComp.day!, nowComp.month!, nowComp.year!) {
@@ -148,6 +137,16 @@ class CalendarVC: UIViewController {
 //        }
     }
     
+    private func postSetUp() {
+//        let view = UIView()
+//        view.backgroundColor = .red
+//        view.translatesAutoresizingMaskIntoConstraints = false
+//        NSLayoutConstraint.activate([
+//            view.widthAnchor.constraint(equalToConstant: 70),
+//            view.heightAnchor.constraint(equalToConstant: 70)
+//        ])
+//        whiteFrame.addViewToFrame(view)
+    }
     //MARK: Logic
     private func timeIntervalToHourMin(_ interval: Int) -> (hour: Int, min: Int) {
         let hour = interval / (2 * unitTiming)
@@ -171,8 +170,10 @@ class CalendarVC: UIViewController {
         return "\(hourStr):\(minStr)"
     }
     private func hourToInterval(hour: Float) -> Int { return Int(hour * 2 * Float(unitTiming)) }
-    
     //MARK: Event function
+//    @IBAction func onTapSampleBtn(_ sender: UIButton) {
+//        whiteFrame.isShowing.toggle()
+//    }
     @objc func onTapDateV(_ ges: UITapGestureRecognizer) {
         isShowingCalendar.toggle()
         isShowingFromToTime = false
@@ -182,8 +183,7 @@ class CalendarVC: UIViewController {
         isShowingFromToTime.toggle()
     }
 }
-//MARK: TableviewDatasource
-extension CalendarVC: UITableViewDataSource {
+extension ContentPopUp: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView == self.fromTimeTbV {
             return fromTimes.count
@@ -243,7 +243,7 @@ extension CalendarVC: UITableViewDataSource {
     }
 }
 //MARK: UITableViewDelegate
-extension CalendarVC: UITableViewDelegate {
+extension ContentPopUp: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if tableView == self.fromTimeTbV {
             
@@ -295,7 +295,14 @@ extension CalendarVC: UITableViewDelegate {
     }
 }
 
-extension CalendarVC: UIScrollViewDelegate {
+extension ContentPopUp: UIScrollViewDelegate {
+    private func tableView(_ tableView: UITableView, selectAt indexPath: IndexPath) {
+        if let indexPath = tableView.delegate?.tableView?(tableView, willSelectRowAt: indexPath) {
+            tableView.selectRow(at: indexPath, animated: true, scrollPosition: .top)
+            tableView.delegate?.tableView?(tableView, didSelectRowAt: indexPath)
+        }
+    }
+    
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         guard let tbV = scrollView as? UITableView else { return }
         if tbV.isDecelerating { return }
@@ -313,10 +320,7 @@ extension CalendarVC: UIScrollViewDelegate {
                 let needDeselect = IndexPath(row:  tbV == fromTimeTbV ? selectedFromTimeInterval : selectedToTimeInterval, section: 0)
                 tbV.delegate?.tableView?(tbV, didDeselectRowAt: needDeselect)
                 tbV.delegate?.tableView?(tbV, didSelectRowAt: indexPath)
-                
             }
-//            tbV.deselect
-//            tbV.selectRow(at: needSelectedIndexPath, animated: true, scrollPosition: .top)
         }
     }
     
@@ -342,24 +346,4 @@ extension CalendarVC: UIScrollViewDelegate {
 //                targetContentOffset.pointee = offset
 ////            }
 //        }
-}
-
-enum Month: Int {
-    case jan = 1, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec
-    var display: String {
-        switch self {
-        case .jan: return "January"
-        case .feb: return "February"
-        case .mar: return "March"
-        case .apr: return "April"
-        case .may: return "May"
-        case .jun: return "June"
-        case .jul: return "July"
-        case .aug: return "August"
-        case .sep: return "September"
-        case .oct: return "October"
-        case .nov: return "November"
-        case .dec: return "December"
-        }
-    }
 }

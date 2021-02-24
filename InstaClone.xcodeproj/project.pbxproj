@@ -25,6 +25,10 @@
 		4614A5E125DFCAF700531C6A /* FullCalendarView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4614A5E025DFCAF700531C6A /* FullCalendarView.xib */; };
 		467EF85525E4BE2E00D2A7DC /* HourMinuteCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 467EF85325E4BE2E00D2A7DC /* HourMinuteCell.swift */; };
 		467EF85625E4BE2E00D2A7DC /* HourMinuteCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 467EF85425E4BE2E00D2A7DC /* HourMinuteCell.xib */; };
+		468297C925E62D9F0009EA10 /* DownPopUp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 468297C825E62D9F0009EA10 /* DownPopUp.swift */; };
+		468297CE25E63B000009EA10 /* StackViewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 468297CD25E63B000009EA10 /* StackViewHelper.swift */; };
+		468297D325E641380009EA10 /* ContentPopUp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 468297D225E641380009EA10 /* ContentPopUp.swift */; };
+		468297D625E641610009EA10 /* ContentPopUp.xib in Resources */ = {isa = PBXBuildFile; fileRef = 468297D525E641610009EA10 /* ContentPopUp.xib */; };
 		46A1C0D925DCACFD002F6AA7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46A1C0D825DCACFD002F6AA7 /* AppDelegate.swift */; };
 		46A1C0DB25DCACFD002F6AA7 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46A1C0DA25DCACFD002F6AA7 /* SceneDelegate.swift */; };
 		46A1C0DD25DCACFD002F6AA7 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46A1C0DC25DCACFD002F6AA7 /* ViewController.swift */; };
@@ -67,6 +71,10 @@
 		4614A5E025DFCAF700531C6A /* FullCalendarView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FullCalendarView.xib; sourceTree = "<group>"; };
 		467EF85325E4BE2E00D2A7DC /* HourMinuteCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HourMinuteCell.swift; sourceTree = "<group>"; };
 		467EF85425E4BE2E00D2A7DC /* HourMinuteCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = HourMinuteCell.xib; sourceTree = "<group>"; };
+		468297C825E62D9F0009EA10 /* DownPopUp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownPopUp.swift; sourceTree = "<group>"; };
+		468297CD25E63B000009EA10 /* StackViewHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StackViewHelper.swift; sourceTree = "<group>"; };
+		468297D225E641380009EA10 /* ContentPopUp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentPopUp.swift; sourceTree = "<group>"; };
+		468297D525E641610009EA10 /* ContentPopUp.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ContentPopUp.xib; sourceTree = "<group>"; };
 		46A1C0D525DCACFD002F6AA7 /* InstaClone.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InstaClone.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		46A1C0D825DCACFD002F6AA7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		46A1C0DA25DCACFD002F6AA7 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -107,8 +115,7 @@
 			isa = PBXGroup;
 			children = (
 				4614A5C025DF5DD400531C6A /* Cell */,
-				4614A59E25DF4E7F00531C6A /* CalendarVC.swift */,
-				4614A59F25DF4E7F00531C6A /* CalendarVC.xib */,
+				468297D025E63FE40009EA10 /* CalendarVC */,
 				4614A5A425DF501300531C6A /* OneMonthView.swift */,
 				4614A5B425DF569700531C6A /* OneMonthView.xib */,
 				4614A5DD25DFCADD00531C6A /* FullCalendarView.swift */,
@@ -128,6 +135,33 @@
 				467EF85425E4BE2E00D2A7DC /* HourMinuteCell.xib */,
 			);
 			path = Cell;
+			sourceTree = "<group>";
+		};
+		468297C725E62CDD0009EA10 /* WhiteFrame */ = {
+			isa = PBXGroup;
+			children = (
+				468297C825E62D9F0009EA10 /* DownPopUp.swift */,
+			);
+			path = WhiteFrame;
+			sourceTree = "<group>";
+		};
+		468297CC25E63AF10009EA10 /* Helper */ = {
+			isa = PBXGroup;
+			children = (
+				468297CD25E63B000009EA10 /* StackViewHelper.swift */,
+			);
+			path = Helper;
+			sourceTree = "<group>";
+		};
+		468297D025E63FE40009EA10 /* CalendarVC */ = {
+			isa = PBXGroup;
+			children = (
+				4614A59E25DF4E7F00531C6A /* CalendarVC.swift */,
+				4614A59F25DF4E7F00531C6A /* CalendarVC.xib */,
+				468297D225E641380009EA10 /* ContentPopUp.swift */,
+				468297D525E641610009EA10 /* ContentPopUp.xib */,
+			);
+			path = CalendarVC;
 			sourceTree = "<group>";
 		};
 		46A1C0CC25DCACFD002F6AA7 = {
@@ -165,6 +199,8 @@
 		46A1C0F225DCAD48002F6AA7 /* VC */ = {
 			isa = PBXGroup;
 			children = (
+				468297CC25E63AF10009EA10 /* Helper */,
+				468297C725E62CDD0009EA10 /* WhiteFrame */,
 				4614A59D25DF4E6000531C6A /* Calendar */,
 				46A1C0ED25DCAD3D002F6AA7 /* ProfileVC.swift */,
 				46A1C0EE25DCAD3D002F6AA7 /* ProfileVC.xib */,
@@ -263,6 +299,7 @@
 				4602F10625E39E240060962F /* TestVC.xib in Resources */,
 				4614A5A125DF4E7F00531C6A /* CalendarVC.xib in Resources */,
 				46A1C0FD25DCB639002F6AA7 /* Screen2VC.xib in Resources */,
+				468297D625E641610009EA10 /* ContentPopUp.xib in Resources */,
 				4614A5B525DF569700531C6A /* OneMonthView.xib in Resources */,
 				4614A5E125DFCAF700531C6A /* FullCalendarView.xib in Resources */,
 				46A1C11625DCD8E5002F6AA7 /* HistoryItemCell.xib in Resources */,
@@ -283,6 +320,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				46A1C11A25DCEBF2002F6AA7 /* HotelSuggestItemCell.swift in Sources */,
+				468297CE25E63B000009EA10 /* StackViewHelper.swift in Sources */,
 				46A1C11525DCD8E5002F6AA7 /* HistoryItemCell.swift in Sources */,
 				46A1C0EF25DCAD3D002F6AA7 /* ProfileVC.swift in Sources */,
 				46A1C12625DD2035002F6AA7 /* ScrollDecelerator.swift in Sources */,
@@ -296,7 +334,9 @@
 				4614A5A525DF501300531C6A /* OneMonthView.swift in Sources */,
 				46A1C10625DCCAD1002F6AA7 /* BaseXibView.swift in Sources */,
 				4602F10525E39E240060962F /* TestVC.swift in Sources */,
+				468297C925E62D9F0009EA10 /* DownPopUp.swift in Sources */,
 				4614A5B825DF58A400531C6A /* SampleVC.swift in Sources */,
+				468297D325E641380009EA10 /* ContentPopUp.swift in Sources */,
 				4614A5D225DF60F600531C6A /* CalendarItemCltVCell.swift in Sources */,
 				46A1C0F725DCB627002F6AA7 /* Screen1VC.swift in Sources */,
 				467EF85525E4BE2E00D2A7DC /* HourMinuteCell.swift in Sources */,

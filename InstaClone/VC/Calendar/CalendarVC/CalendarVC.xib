@@ -11,7 +11,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CalendarVC" customModule="InstaClone" customModuleProvider="target">
             <connections>
-                <outlet property="calendarHeightContraint" destination="XMD-53-1Gs" id="iiu-zi-QtE"/>
+                <outlet property="calendarHeightContraint" destination="XMD-53-1Gs" id="ZbQ-Qa-Uqk"/>
                 <outlet property="calendarV" destination="J9Q-wd-lDy" id="WBA-rQ-Dhx"/>
                 <outlet property="dateChoosenLb" destination="FdW-S5-qlB" id="fS5-2p-lqt"/>
                 <outlet property="dateV" destination="iCv-gT-bYi" id="aBJ-gl-f7J"/>
@@ -158,6 +158,14 @@
                         <constraint firstItem="9U8-8l-7WG" firstAttribute="height" secondItem="iCv-gT-bYi" secondAttribute="height" id="4QO-9z-oLx"/>
                     </constraints>
                 </stackView>
+                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Pja-kT-NJC">
+                    <rect key="frame" x="184" y="60" width="46" height="30"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <state key="normal" title="Button"/>
+                    <connections>
+                        <action selector="onTapSampleBtn:" destination="-1" eventType="touchUpInside" id="UJ1-GH-A7D"/>
+                    </connections>
+                </button>
             </subviews>
             <viewLayoutGuide key="safeArea" id="fnl-2z-Ty3"/>
             <color key="backgroundColor" systemColor="systemBackgroundColor"/>

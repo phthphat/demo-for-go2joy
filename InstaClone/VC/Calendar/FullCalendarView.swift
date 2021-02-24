@@ -94,7 +94,8 @@ extension FullCalendarView: UICollectionViewDataSource, UICollectionViewDelegate
 
 extension FullCalendarView: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return .init(width: self.frame.width, height: self.frame.height)
+        return .init(width: self.cltV.frame.width, height: self.frame.height)
+//        return .init(width: 400, height: 300)
     }
 //    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
 //        <#code#>

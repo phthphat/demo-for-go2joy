@@ -152,8 +152,8 @@ extension OneMonthView: UICollectionViewDelegate, UICollectionViewDataSource {
 
 extension OneMonthView: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return .init(width: self.frame.width / 7.0, height: 40)
-//        return .init(width: 30, height: 40)
+//        return .init(width: self.frame.width / 7.0, height: 40)
+        return .init(width: 30, height: 40)
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 0
